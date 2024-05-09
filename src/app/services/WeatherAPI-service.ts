@@ -29,8 +29,7 @@ class WeatherAPIService {
 		return this._masterVar$;
 	}
 
-
-  public fetchApiResponse = async (url: string, method: string = "GET", body?: string, headers?: Record<string, string>): Promise<any> => {
+  private async fetchApiResponse<T>(url: string, result?: T,  method: string = "GET", body?: string, headers?: Record<string, string>): Promise<T> {
     const options = {
         method,
         body,
@@ -42,7 +41,7 @@ class WeatherAPIService {
 
       if (!response.ok) {
           console.error(response.statusText);
-          return Promise.resolve(undefined);
+          return Promise.resolve(result as T);
       }
 
       return response.json();
@@ -50,10 +49,12 @@ class WeatherAPIService {
     catch (error) {
       console.error(error);
     }
+
+    return Promise.resolve(result as T);
   }
 
   public getWeatherForecastList = async (): Promise<WeatherForecast[]> => {
-      return await this.fetchApiResponse(`${API_ENDPOINT}/WeatherForecast`);
+      return await this.fetchApiResponse<WeatherForecast[]>(`${API_ENDPOINT}/WeatherForecast`, []);
   }
 
   public postWeatherForecast = async (data: any): Promise<WeatherForecast | undefined> => {
@@ -66,7 +67,7 @@ class WeatherAPIService {
           'Content-Type': 'application/json; charset=utf-8'
       };
 
-      return await this.fetchApiResponse(`${API_ENDPOINT}/WeatherForecast`, "POST", body, headers);
+      return await this.fetchApiResponse<WeatherForecast | undefined>(`${API_ENDPOINT}/WeatherForecast`, undefined, "POST", body, headers);
   }
 
   public putWeatherForecast = async (data: any): Promise<WeatherForecast | undefined> => {
@@ -79,7 +80,7 @@ class WeatherAPIService {
           'Content-Type': 'application/json; charset=utf-8'
       };
 
-      return await this.fetchApiResponse(`${API_ENDPOINT}/WeatherForecast`, "PUT", body, headers);
+      return await this.fetchApiResponse<WeatherForecast | undefined>(`${API_ENDPOINT}/WeatherForecast`, undefined, "PUT", body, headers);
   }
 
   public deleteWeatherForecast = async (id: number): Promise<WeatherForecast | undefined> => {
@@ -87,11 +88,11 @@ class WeatherAPIService {
           return Promise.resolve(undefined);
       }
 
-      return await this.fetchApiResponse(`${API_ENDPOINT}/WeatherForecast/${id}`, "DELETE");
+      return await this.fetchApiResponse<WeatherForecast | undefined>(`${API_ENDPOINT}/WeatherForecast/${id}`, undefined, "DELETE");
   }
 
   public getWeatherSummaryList = async (): Promise<WeatherSummary[]> => {
-      return await this.fetchApiResponse(`${API_ENDPOINT}/WeatherSummary`);
+      return await this.fetchApiResponse<WeatherSummary[]>(`${API_ENDPOINT}/WeatherSummary`);
   }
 
   public getWeatherForecast = async (id: number): Promise<WeatherForecast | undefined> => {
@@ -99,7 +100,7 @@ class WeatherAPIService {
           return Promise.resolve(undefined);
       }
 
-      return await this.fetchApiResponse(`${API_ENDPOINT}/WeatherForecast/${id}`);
+      return await this.fetchApiResponse<WeatherForecast | undefined>(`${API_ENDPOINT}/WeatherForecast/${id}`, undefined);
   }
 }
 export const weatherAPIService: WeatherAPIService = new WeatherAPIService();
